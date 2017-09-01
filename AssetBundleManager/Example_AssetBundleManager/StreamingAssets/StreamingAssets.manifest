@@ -1,0 +1,15 @@
+ManifestFileVersion: 0
+CRC: 4273990446
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: cube
+      Dependencies:
+        Dependency_0: texture
+    Info_1:
+      Name: capsule
+      Dependencies:
+        Dependency_0: texture
+    Info_2:
+      Name: texture
+      Dependencies: {}

@@ -1,0 +1,16 @@
+ManifestFileVersion: 0
+CRC: 2812725717
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 43ac54b46820fad0175208120f136342
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: c1642440719609290a7e09a50a7286f4
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+Assets:
+- Assets/Prefabs/S_IT000001.png
+Dependencies: []

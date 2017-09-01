@@ -1,0 +1,34 @@
+ManifestFileVersion: 0
+CRC: 3175963080
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: eb6ea682e62d755cec2d9e975278fad1
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 24e0b41a44d74c9ac4f79b34f7585c83
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 136
+  Script: {instanceID: 0}
+Assets:
+- Assets/Prefabs/Capsule.mat
+- Assets/Prefabs/Capsule.prefab
+Dependencies:
+- F:/ABSystem-master/Assets/Scripts/Core/AssetBundleManager/Example/StreamingAssets/texture
