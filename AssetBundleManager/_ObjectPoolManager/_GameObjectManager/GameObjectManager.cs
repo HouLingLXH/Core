@@ -28,10 +28,11 @@ public class GameObjectManager : MonoBehaviour {
     //直接创建
     static public GameObject CreatGameObect(string name)
     {
-        GameObject prafeb = AssetManager.Load<GameObject>(name); 
+        GameObject prafeb = AssetManager.Load<GameObject>(name);
+
         GameObject obj = Instantiate(prafeb);
+        //记录 obj 与 Asset 间的关系
         AssetManager.RecordObjUsedAsset(obj, prafeb);
-        AssetBundleManager.RecordAssetUsedBundle(prafeb, "cube");
         obj.name = name;
         prafeb = null;
         return obj;
@@ -40,9 +41,7 @@ public class GameObjectManager : MonoBehaviour {
     //直接删除
     static public void DestroyGameObject(GameObject go)
     {
-        Destroy(go);
-        
+        AssetManager.RemoveObjUsedAsset(go);
+        Destroy(go);// go在下一帧才会释放
     }
-
-
 }

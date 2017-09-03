@@ -6,7 +6,10 @@ public class AssetManager : MonoBehaviour {
 
 
     static Dictionary<string, Object> m_allLoadedAsset = new Dictionary<string, Object>();//所有加载了的Asset 名称  此处就要求，所有asset 的名称必须唯一
-    static Dictionary<Object, List<int>> m_allAssetBeUsedObj = new Dictionary<Object, List<int>>(); //所有Asset的使用情况 ，key 是 asset
+    static Dictionary<Object, string> m_allLoadedAsset2 = new Dictionary<Object, string>();//所有加载了的Asset 名称 key 是Obj
+    static Dictionary<Object, List<int>> m_allAssetBeUsedByObj = new Dictionary<Object, List<int>>(); //Aset -> Obj的使用情况 ，key 是 asset
+    static Dictionary<int, Object> m_objUseAsset = new Dictionary<int, Object>();//  obj -> Asset 的信息
+
     static List<string> m_allNeedUnloadAssetName = new List<string>(); //所有准备卸载的资源名
 
     #region 提供外部使用的方法
@@ -16,35 +19,66 @@ public class AssetManager : MonoBehaviour {
     {
     }
 
-    //从内存 卸载一个不用的资源
+    //从内存 卸载一个 资源的 引用标志,并卸载资源。
     static public void UnloadOneAsset(string assetName)
     {
         if (m_allLoadedAsset.ContainsKey(assetName))
         {
             Object asset = m_allLoadedAsset[assetName];
-            if (m_allAssetBeUsedObj.ContainsKey(asset))
-            {
-                if (m_allAssetBeUsedObj[asset].Count < 1)
-                {
-                    m_allAssetBeUsedObj.Remove(asset);
-                    m_allLoadedAsset.Remove(assetName);
-                    Resources.UnloadAsset(asset);
-                }
-                else
-                {
-                    Debug.LogWarning(assetName + " 资源不能被卸载，引用数：" + m_allAssetBeUsedObj[asset].Count);
-                }
-            }
-            else
-            {
-                Debug.LogError("m_allAssetBeUsedObj 中不包含资源： " + assetName + "   资源名：" + asset);
-            }
-
+            m_allLoadedAsset.Remove(assetName);
+            UnloadOneAsset(asset);
         }
         else
         {
             Debug.LogError("m_allLoadedAsset 中不包含： " + assetName);
         }
+    }
+
+    //从内存 卸载一个 资源的 引用标志,并卸载资源。 (当该资源没有与bundle 断开连接时，不能用该方法删除，否则bundle 下次无法load该资源)
+    static public void UnloadOneAsset(Object asset)
+    {
+        bool b_canRemove = false;
+        string assetName = null;
+        if (m_allLoadedAsset2.ContainsKey(asset))
+        {
+            assetName = m_allLoadedAsset2[asset];
+            if (m_allAssetBeUsedByObj.ContainsKey(asset))
+            {
+                if (m_allAssetBeUsedByObj[asset].Count < 1)
+                {
+                    b_canRemove = true;
+                }
+                else
+                {
+                    Debug.LogWarning(assetName + " 资源不能被卸载，引用数：" + m_allAssetBeUsedByObj[asset].Count);
+                }
+            }
+            else
+            {
+                b_canRemove = true;
+            }
+        }
+
+        else
+        {
+            Debug.LogError("m_allLoadedAsset2 中 不包含 " + asset);
+        }
+        if (b_canRemove)
+        {
+            m_allLoadedAsset2.Remove(asset);
+            m_allLoadedAsset.Remove(assetName);
+            if (CanBeResourcesUnload(asset))
+            {
+                Resources.UnloadAsset(asset);
+            }
+            else
+            {
+                DestroyImmediate(asset, true);
+            }
+            Debug.Log("卸载资源 + " + asset);
+
+        }
+       
     }
 
     //从内存 卸载所有不用的资源 
@@ -79,12 +113,15 @@ public class AssetManager : MonoBehaviour {
     {
         if (m_allLoadedAsset.ContainsKey(assetName))
         {
+
             return m_allLoadedAsset[assetName] as T;
         }
         else
         {
             T asset = AssetBundleManager.Load<T>("cube", assetName); //以后要自动读取bundle名
             m_allLoadedAsset.Add(assetName, asset);
+            m_allLoadedAsset2.Add(asset, assetName);
+
             return asset;
         }
     }
@@ -93,38 +130,122 @@ public class AssetManager : MonoBehaviour {
     static public void RecordObjUsedAsset(Object obj, Object asset)
     {
         int instanceID = obj.GetInstanceID();
-        if (m_allAssetBeUsedObj.ContainsKey(asset))
+        //记录 asset -> Obj
+        if (m_allAssetBeUsedByObj.ContainsKey(asset))
         {
-            if (m_allAssetBeUsedObj[asset].Contains(instanceID))
+            if (m_allAssetBeUsedByObj[asset].Contains(instanceID))
             {
-                m_allAssetBeUsedObj[asset].Add(instanceID);
+                Debug.LogError(asset + "重复记录实例：" + obj.name);
             }
             else
             {
-                Debug.LogError("重复记录实例：" + obj.name);
+                m_allAssetBeUsedByObj[asset].Add(instanceID);
             }
         }
         else
         {
             List<int> allObjID = new List<int>();
             allObjID.Add(instanceID);
-            m_allAssetBeUsedObj.Add(asset, allObjID);
+            m_allAssetBeUsedByObj.Add(asset, allObjID);
         }
+
+
+        //记录 Obj  ->  asset
+        if (m_objUseAsset.ContainsKey(instanceID))
+        {
+            Debug.LogError(obj + "已经引用过其他资源了");
+        }
+        else
+        {
+            m_objUseAsset.Add(instanceID, asset);
+        }
+
+
+    }
+
+    //移除某Obj 对asset 的引用
+    static public bool RemoveObjUsedAsset(Object obj)
+    {
+        Object asset ;
+        //移除 Obj -> Asset 的信息
+        int instanceID = obj.GetInstanceID();
+        if (m_objUseAsset.ContainsKey(instanceID))
+        {
+            asset = m_objUseAsset[instanceID];
+            m_objUseAsset.Remove(instanceID);
+        }
+        else
+        {
+            Debug.LogError("实例：" + obj + "  ID:" + instanceID + " 没有记录他对Asset 的引用");
+            return false;
+        }
+
+        //移除 Asset -> Obj 的信息
+
+        if (m_allAssetBeUsedByObj.ContainsKey(asset))
+        {
+            if (m_allAssetBeUsedByObj[asset].Contains(instanceID))
+            {
+                m_allAssetBeUsedByObj[asset].Remove(instanceID);
+                return true;
+            }
+            else
+            {
+                Debug.Log("资源： " + asset + "ID: " + asset.GetInstanceID() + "  没有对" + obj + "的使用记录");
+            }
+        }
+        else
+        {
+            Debug.LogError("没有记录 实例" + obj + "对资源的引用");
+        }
+        return false;
+
     }
 
 
-
+    #region 编辑器工具
     //获取所有已经加载的Asset 
     static public Dictionary<string, Object> GetAllLoadedAsset()
     {
         return new Dictionary<string, Object>(m_allLoadedAsset);
     }
 
-    //获取所有实例对象对 asset 的引用
-    static public Dictionary<Object,List<int>> GetAllObjUsedAsset()
+    //获取所有已经加载的Asset2 
+    static public Dictionary<Object, string> GetAllLoadedAsset2()
     {
-        return new Dictionary<Object,List<int>>(m_allAssetBeUsedObj);
+        return new Dictionary<Object, string>(m_allLoadedAsset2);
     }
+
+    //获取所有 asset 的引用情况
+    static public Dictionary<Object,List<int>> GetUsedAssetByObj()
+    {
+        return new Dictionary<Object,List<int>>(m_allAssetBeUsedByObj);
+    }
+
+    //获取所有实例对象对 asset 的引用
+    static public Dictionary<int, Object> GetObjUseAsset()
+    {
+        return new Dictionary<int, Object>(m_objUseAsset);
+    }
+    #endregion
+
+
+    #region 类内工具
+    //可以被Resources.Unload() 则返回true
+    static private bool CanBeResourcesUnload(Object asset)
+    {
+        if (asset.GetType() == typeof(GameObject) ||
+            asset.GetType() == typeof(Component)
+            )
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    #endregion
     #endregion
 
 

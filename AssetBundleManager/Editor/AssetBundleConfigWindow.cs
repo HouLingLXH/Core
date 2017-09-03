@@ -6,15 +6,18 @@ using System.IO;
 
 public class AssetBundleConfigWindow : EditorWindow {
 
-    static Dictionary<int, List<string>> allObjUsedBundle; //所有实例 所使用的Assetbundle 情况
-    static Dictionary<string, List<int>> allBundleUsedInfo; //所有被使用的bundle 的信息
+    static Dictionary<int, List<string>> allObjUsedBundle; //所有Asset -> Assetbundle 情况
+    static Dictionary<string, List<int>> allBundleUsedInfo; //所有Assetbundle -> Asset 的情况
 
-    static readonly string[] toolbarStrings = new string[] { "所有Object", "所有 Bundle" };
+    #region toolBar 相关
+    static readonly string[] toolbarStrings = new string[] { "Object -> Bundle", "Bundle -> Object" };
     const int c_selectObject = 0;
     const int c_selectBundle = 1;
     private static int toolbarSelected; //当前选择的toolbar
-    private Vector2 scrollViewVector;
+    #endregion
 
+    private Vector2 scrollViewVector;
+     
 
     [MenuItem("Window/AssetBundle Manager")]
     public static void Open()
@@ -56,7 +59,7 @@ public class AssetBundleConfigWindow : EditorWindow {
         switch (toolbarSelected)
         {
             case c_selectObject:
-                ShowAllObject();
+                ShowAllAssetObject();
                 break;
             case c_selectBundle:
                 ShowAllAssetBundleInfo();
@@ -68,10 +71,10 @@ public class AssetBundleConfigWindow : EditorWindow {
 
     }
 
-    //展示所有Object 的bundle使用情况
-    static void ShowAllObject()
+    //展示所有Asset -> bundle使用情况
+    static void ShowAllAssetObject()
     {
-        allObjUsedBundle = AssetBundleManager.GetAllObjUsedBundle();
+        allObjUsedBundle = AssetBundleManager.GetAllAssetUsedBundle();
         GUILayout.BeginVertical();
         int index = 1;
         foreach (var item in allObjUsedBundle)
@@ -87,6 +90,9 @@ public class AssetBundleConfigWindow : EditorWindow {
             GUILayout.EndHorizontal();
 
             GUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(30);
+            GUILayout.BeginVertical();
             GUILayout.Label("关联的AssetBundle：");
             for (int i = 0; i < item.Value.Count; i++)
             {
@@ -95,6 +101,8 @@ public class AssetBundleConfigWindow : EditorWindow {
                 GUILayout.Label("<"+ i +">"+item.Value[i]);
                 GUILayout.EndHorizontal();
             }
+            GUILayout.EndVertical();
+            GUILayout.EndHorizontal();
             index++;
         }
 
@@ -102,10 +110,10 @@ public class AssetBundleConfigWindow : EditorWindow {
         allObjUsedBundle = null;
     }
 
-    //展示所有AssetBundle 的信息
+    //展示所有bundle -> Asset 的信息
     static void ShowAllAssetBundleInfo()
     {
-        allObjUsedBundle = AssetBundleManager.GetAllObjUsedBundle();
+        allObjUsedBundle = AssetBundleManager.GetAllAssetUsedBundle();
         if (allBundleUsedInfo == null)
         {
             allBundleUsedInfo = new Dictionary<string, List<int>>();
@@ -155,6 +163,7 @@ public class AssetBundleConfigWindow : EditorWindow {
 
     }
 
+    //通过Instance ID 查找 Obj
     static Object GetObjectFromID(int id)
     {
         foreach (Object o in Resources.FindObjectsOfTypeAll(typeof(Object)))

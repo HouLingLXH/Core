@@ -17,7 +17,7 @@ public class AssetBundleManager {
     private static AssetBundleManifest s_assetBundleManifest; // manifest 文件 ，记录了所有bundle的依赖关系
     private static Dictionary<string, AssetBundle> s_allLoadedBundle = new Dictionary<string, AssetBundle>();//所有已经加载的bundle
     private static Dictionary<string, int> s_allLoadedBundleUsedNum = new Dictionary<string, int>();//所有已经加载的bundle 被引用的数量
-    private static Dictionary<int, List<string>> s_allAssetsUsedBundle = new Dictionary<int,List<string>>();//所有资源对bundle 的引用  key是instanceID
+    private static Dictionary<int, List<string>> s_allAssetUsedBundle = new Dictionary<int,List<string>>();//所有asset -> bundle 引用  key是instanceID
     private static List<string> needUnLoadBundleName = new List<string>();//需要卸载的assetbundle
     #endregion
 
@@ -98,7 +98,11 @@ public class AssetBundleManager {
             }
             else
             {
+               
                 T asset = myLoadedAssetBundle.LoadAsset<T>(resName);
+                //Debug.Log(asset);
+                //记录asset 与 bundle 之间的关系
+                AssetBundleManager.RecordAssetUsedBundle(asset, bundleName);
                 return asset;
             }
 
@@ -109,22 +113,22 @@ public class AssetBundleManager {
     static public void RecordAssetUsedBundle(Object obj, string abName)
     {
         int instanceID = obj.GetInstanceID();
-        if (s_allAssetsUsedBundle.ContainsKey(instanceID))
+        if (s_allAssetUsedBundle.ContainsKey(instanceID))
         {
-            if (s_allAssetsUsedBundle[instanceID] == null)
+            if (s_allAssetUsedBundle[instanceID] == null)
             {
                 List<string> abNameList = new List<string>();
-                s_allAssetsUsedBundle[instanceID] = abNameList;
+                s_allAssetUsedBundle[instanceID] = abNameList;
 
             }
-            s_allAssetsUsedBundle[instanceID].Add(abName);
+            s_allAssetUsedBundle[instanceID].Add(abName);
             s_allLoadedBundleUsedNum[abName] = s_allLoadedBundleUsedNum[abName] + 1;
         }
         else
         {
             List<string> abNameList = new List<string>();
-            s_allAssetsUsedBundle.Add(instanceID, abNameList);
-            s_allAssetsUsedBundle[instanceID].Add(abName);
+            s_allAssetUsedBundle.Add(instanceID, abNameList);
+            s_allAssetUsedBundle[instanceID].Add(abName);
         }
 
         string[] dependAssets = s_assetBundleManifest.GetAllDependencies(abName);
@@ -141,10 +145,10 @@ public class AssetBundleManager {
     {
 
         int instanceID = asset.GetInstanceID();
-        if (s_allAssetsUsedBundle.ContainsKey(instanceID))
+        if (s_allAssetUsedBundle.ContainsKey(instanceID))
         {
             s_allLoadedBundleUsedNum[abName] = s_allLoadedBundleUsedNum[abName] - 1;  // abName 这个bundle的被引用数减一
-            s_allAssetsUsedBundle[instanceID].Remove(abName); // asset 这个asset不再使用 abName 这个bundle
+            s_allAssetUsedBundle[instanceID].Remove(abName); // asset 这个asset不再使用 abName 这个bundle
         }
         else
         {
@@ -160,10 +164,10 @@ public class AssetBundleManager {
         }
     }
 
-    //获取当前所有资源对AssetBundle 的使用情况
-    public static Dictionary<int, List<string>> GetAllObjUsedBundle()
+    //获取当前所有资源对AssetBundle 的使用情况  (asset -> bundle)
+    public static Dictionary<int, List<string>> GetAllAssetUsedBundle()
     {
-        return new Dictionary<int, List<string>>(s_allAssetsUsedBundle);
+        return new Dictionary<int, List<string>>(s_allAssetUsedBundle);
     }
 
     #endregion
@@ -188,15 +192,17 @@ public class AssetBundleManager {
     //加载一个AsssetBundle
     static private AssetBundle LoadOneAssetBundle(string name,string path)
     {
-        AssetBundle myAssetBundle;
+        AssetBundle myAssetBundle = null;
         if (s_allLoadedBundle.ContainsKey(name))
         {
             myAssetBundle = s_allLoadedBundle[name];
             //s_allLoadedBundleUsedNum[name] = s_allLoadedBundleUsedNum[name] + 1; //引用数量+1
+            //Debug.Log("读取已解压的bundle" + name);
         }
         else
         {
             myAssetBundle = AssetBundle.LoadFromFile(path);
+
             s_allLoadedBundle.Add(name, myAssetBundle); //添加为已加载
             s_allLoadedBundleUsedNum.Add(name, 0); //引用数量 0
             //Debug.Log("add " + name + s_allLoadedBundleUsedNum[name]);

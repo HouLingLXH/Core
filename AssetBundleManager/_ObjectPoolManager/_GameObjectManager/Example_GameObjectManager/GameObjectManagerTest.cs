@@ -7,7 +7,7 @@ public class GameObjectManagerTest : MonoBehaviour {
     public GameObject cube;
 	// Use this for initialization
 	void Start () {
-        cube = GameObjectManager.CreatGameObect("Cube");
+        
     }
 	
 	// Update is called once per frame
@@ -27,5 +27,14 @@ public class GameObjectManagerTest : MonoBehaviour {
         Debug.Log(Time.timeSinceLevelLoad);
     }
 
+    public void Btn_CreatCube()
+    {
+        cube = GameObjectManager.CreatGameObect("Cube");
+    }
+
+    public void Btn_DeleteCube()
+    {
+        GameObjectManager.DestroyGameObject(cube);
+    }
 
 }
