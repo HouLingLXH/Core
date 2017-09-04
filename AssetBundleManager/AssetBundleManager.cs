@@ -17,6 +17,7 @@ public class AssetBundleManager {
     private static AssetBundleManifest s_assetBundleManifest; // manifest 文件 ，记录了所有bundle的依赖关系
     private static Dictionary<string, AssetBundle> s_allLoadedBundle = new Dictionary<string, AssetBundle>();//所有已经加载的bundle
     private static Dictionary<string, int> s_allLoadedBundleUsedNum = new Dictionary<string, int>();//所有已经加载的bundle 被引用的数量
+
     private static Dictionary<int, List<string>> s_allAssetUsedBundle = new Dictionary<int,List<string>>();//所有asset -> bundle 引用  key是instanceID
     private static List<string> needUnLoadBundleName = new List<string>();//需要卸载的assetbundle
     #endregion
@@ -27,8 +28,6 @@ public class AssetBundleManager {
     {
         InitAssetBundleMainfest();
     }
-
-
 
     //遍历,卸载所有不用的AssetBundle
     public static void UnloadUselessAssetBundle()
@@ -64,6 +63,20 @@ public class AssetBundleManager {
     #endregion
 
     #region 内部调用的方法
+    //初始化 加载主manifest文件
+    static private void InitAssetBundleMainfest()
+    {
+        if (s_assetBundleManifest != null)
+        {
+            return;
+        }
+        string l_path = Path.Combine(Application.dataPath, c_bundleRootPath);
+        l_path = Path.Combine(l_path, c_mainBundleName);
+        var myLoadedAssetBundle = AssetBundle.LoadFromFile(l_path);
+        s_assetBundleManifest = (AssetBundleManifest)myLoadedAssetBundle.LoadAsset(c_manifestName, typeof(AssetBundleManifest));
+        myLoadedAssetBundle.Unload(false);
+
+    }
 
     //根据bundle 名称和 资源名  ，加载资源
     static public T Load<T>(string bundleName, string resName = null, bool isDepend = false) where T : UnityEngine.Object
@@ -164,6 +177,10 @@ public class AssetBundleManager {
         }
     }
 
+    #endregion
+
+    #region 提供编辑器调用的方法
+
     //获取当前所有资源对AssetBundle 的使用情况  (asset -> bundle)
     public static Dictionary<int, List<string>> GetAllAssetUsedBundle()
     {
@@ -172,31 +189,16 @@ public class AssetBundleManager {
 
     #endregion
 
-
     #region 内部工具方法
-    //初始化 加载主manifest文件
-    static private void InitAssetBundleMainfest()
-    {
-        if(s_assetBundleManifest!= null)
-        {
-            return;
-        }
-        string l_path = Path.Combine(Application.dataPath, c_bundleRootPath);
-        l_path = Path.Combine(l_path, c_mainBundleName);
-        var myLoadedAssetBundle = AssetBundle.LoadFromFile(l_path);
-        s_assetBundleManifest = (AssetBundleManifest)myLoadedAssetBundle.LoadAsset(c_manifestName, typeof(AssetBundleManifest));
-        myLoadedAssetBundle.Unload(false);
 
-    }
-
-    //加载一个AsssetBundle
+    //加载一个AsssetBundle, 并记录
     static private AssetBundle LoadOneAssetBundle(string name,string path)
     {
         AssetBundle myAssetBundle = null;
         if (s_allLoadedBundle.ContainsKey(name))
         {
             myAssetBundle = s_allLoadedBundle[name];
-            //s_allLoadedBundleUsedNum[name] = s_allLoadedBundleUsedNum[name] + 1; //引用数量+1
+            s_allLoadedBundleUsedNum[name] = s_allLoadedBundleUsedNum[name] + 1; //引用数量+1
             //Debug.Log("读取已解压的bundle" + name);
         }
         else
@@ -205,32 +207,56 @@ public class AssetBundleManager {
 
             s_allLoadedBundle.Add(name, myAssetBundle); //添加为已加载
             s_allLoadedBundleUsedNum.Add(name, 0); //引用数量 0
-            //Debug.Log("add " + name + s_allLoadedBundleUsedNum[name]);
+            //Debug.Log("加载新引用  " + name + s_allLoadedBundleUsedNum[name]);
         }
         return myAssetBundle;
     }
 
-    //从列表中,卸载、移除一个bundle
-    static private void RemoveAssetBundle(string name)
+    //释放一个bundle 。force == true时表示如果还有引用 , 则使用unload（false），会产生游离asset，游离asset 由  assetManager进行 管理、卸载 
+    static private void RemoveAssetBundle(string bundleName,bool force = false)
     {
-        if (s_allLoadedBundle.ContainsKey(name))
+        if (s_allLoadedBundle.ContainsKey(bundleName))
         {
-            if (s_allLoadedBundleUsedNum[name] < 1)
+            if (s_allLoadedBundleUsedNum[bundleName] < 1)
             {
-                s_allLoadedBundleUsedNum.Remove(name);
-                s_allLoadedBundle[name].Unload(true);
+                RemoveBundleDataAndUnload(bundleName, true);
+            }
+            else if (force)
+            {
+                Debug.LogWarning("强制卸载Assetbundle: " + bundleName + "!  其引用数量为" + s_allLoadedBundleUsedNum[bundleName]);
+                RemoveBundleDataAndUnload(bundleName, false);
             }
             else
             {
-                Debug.LogError("不能删除Assetbundle: " + name + "!  因为其引用数量为" + s_allLoadedBundleUsedNum[name]);
+                Debug.LogWarning("不能卸载Assetbundle: " + bundleName + "!  因为其引用数量为" + s_allLoadedBundleUsedNum[bundleName]);
             }
         }
         else
         {
-            Debug.LogError("AssetBundle : " + name + "  不存在已加载列表中，无法卸载！");
+            Debug.LogError("AssetBundle : " + bundleName + "  不存在已加载列表中，无法卸载！");
         }
-        
     }
+
+    //移除bundle 的记录和加载记录
+    static private void RemoveBundleDataAndUnload(string bundleName,bool unloadAllLoadedObjects)
+    {
+
+        //清除 asset -> bundle  的记录
+        foreach (var item in s_allAssetUsedBundle)
+        {
+            if (item.Value.Contains(bundleName))
+            {
+                item.Value.Remove(bundleName);
+            }
+        }
+
+
+
+        s_allLoadedBundle[bundleName].Unload(unloadAllLoadedObjects);
+        s_allLoadedBundle.Remove(bundleName);
+        s_allLoadedBundleUsedNum.Remove(bundleName);
+    }
+
     #endregion
 }
 

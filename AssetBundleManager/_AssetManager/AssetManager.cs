@@ -7,6 +7,8 @@ public class AssetManager : MonoBehaviour {
 
     static Dictionary<string, Object> m_allLoadedAsset = new Dictionary<string, Object>();//所有加载了的Asset 名称  此处就要求，所有asset 的名称必须唯一
     static Dictionary<Object, string> m_allLoadedAsset2 = new Dictionary<Object, string>();//所有加载了的Asset 名称 key 是Obj
+    static Dictionary<string, bool> m_loadedAssetIsFree = new Dictionary<string, bool>();// 加载的Asset 是否是游离状态
+
     static Dictionary<Object, List<int>> m_allAssetBeUsedByObj = new Dictionary<Object, List<int>>(); //Aset -> Obj的使用情况 ，key 是 asset
     static Dictionary<int, Object> m_objUseAsset = new Dictionary<int, Object>();//  obj -> Asset 的信息
 
@@ -24,7 +26,7 @@ public class AssetManager : MonoBehaviour {
     {
         if (m_allLoadedAsset.ContainsKey(assetName))
         {
-            Object asset = m_allLoadedAsset[assetName];
+            Object asset = GetAssetByName(assetName);
             m_allLoadedAsset.Remove(assetName);
             UnloadOneAsset(asset);
         }
@@ -34,6 +36,12 @@ public class AssetManager : MonoBehaviour {
         }
     }
 
+    //设置某资源为游离状态 （也就是其bundle unload（false）时，之后就可以通过asseManager的方法进行卸载了 ）
+    static private void SetAssetFree(string assetName)
+    {
+        m_loadedAssetIsFree[assetName] = true;
+    }
+
     //从内存 卸载一个 资源的 引用标志,并卸载资源。 (当该资源没有与bundle 断开连接时，不能用该方法删除，否则bundle 下次无法load该资源)
     static public void UnloadOneAsset(Object asset)
     {
@@ -41,12 +49,20 @@ public class AssetManager : MonoBehaviour {
         string assetName = null;
         if (m_allLoadedAsset2.ContainsKey(asset))
         {
-            assetName = m_allLoadedAsset2[asset];
+            assetName = GetNameByAsset(asset);
             if (m_allAssetBeUsedByObj.ContainsKey(asset))
             {
                 if (m_allAssetBeUsedByObj[asset].Count < 1)
                 {
-                    b_canRemove = true;
+                    if (IsFreeAsset(assetName))
+                    {
+                        b_canRemove = true;
+                    }
+                    else
+                    {
+                        Debug.LogWarning(assetName + " 资源不是游离态,不能被卸载");
+                    }
+                    
                 }
                 else
                 {
@@ -114,13 +130,14 @@ public class AssetManager : MonoBehaviour {
         if (m_allLoadedAsset.ContainsKey(assetName))
         {
 
-            return m_allLoadedAsset[assetName] as T;
+            return GetAssetByName(assetName) as T;
         }
         else
         {
             T asset = AssetBundleManager.Load<T>("cube", assetName); //以后要自动读取bundle名
-            m_allLoadedAsset.Add(assetName, asset);
-            m_allLoadedAsset2.Add(asset, assetName);
+
+            //对load的Asset进行记录
+            RecordNewAsset(assetName, asset);
 
             return asset;
         }
@@ -245,6 +262,34 @@ public class AssetManager : MonoBehaviour {
             return true;
         }
     }
+
+    //初次加载，记录加载的asset，并且asset 不是游离态
+    static private void RecordNewAsset(string assetName,Object asset)
+    {
+        m_allLoadedAsset.Add(assetName, asset);
+        m_allLoadedAsset2.Add(asset, assetName);
+        m_loadedAssetIsFree.Add(assetName, false);
+    }
+
+
+    //通过名称获取asset
+    static private Object GetAssetByName(string assetName)
+    {
+        return m_allLoadedAsset[assetName];
+    }
+
+    //通过asset 获取其名称
+    static private string GetNameByAsset(Object asset)
+    {
+        return m_allLoadedAsset2[asset];
+    }
+
+    //asset 是 游离状态
+    static private bool IsFreeAsset(string assetName)
+    {
+        return m_loadedAssetIsFree[assetName];
+    }
+        
     #endregion
     #endregion
 
