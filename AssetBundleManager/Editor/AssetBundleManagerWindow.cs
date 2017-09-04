@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
-public class AssetBundleConfigWindow : EditorWindow {
+public class AssetBundleManagerWindow : EditorWindow {
 
     static Dictionary<int, List<string>> allObjUsedBundle; //所有Asset -> Assetbundle 情况
-    static Dictionary<string, List<int>> allBundleUsedInfo; //所有Assetbundle -> Asset 的情况
+    static Dictionary<string, List<int>> allBundleUsedInfo = new Dictionary<string, List<int>>(); //所有Assetbundle -> Asset 的情况
 
     #region toolBar 相关
     static readonly string[] toolbarStrings = new string[] { "Object -> Bundle", "Bundle -> Object" };
@@ -22,7 +22,7 @@ public class AssetBundleConfigWindow : EditorWindow {
     [MenuItem("Window/AssetBundle Manager")]
     public static void Open()
     {
-        EditorWindow.GetWindow(typeof(AssetBundleConfigWindow));
+        EditorWindow.GetWindow(typeof(AssetBundleManagerWindow));
 
     }
 
@@ -113,6 +113,7 @@ public class AssetBundleConfigWindow : EditorWindow {
     static void ShowAllAssetBundleInfo()
     {
         allObjUsedBundle = AssetBundleManager.GetAllAssetUsedBundle();
+        allBundleUsedInfo.Clear();
         if (allBundleUsedInfo == null)
         {
             allBundleUsedInfo = new Dictionary<string, List<int>>();
@@ -137,7 +138,7 @@ public class AssetBundleConfigWindow : EditorWindow {
         foreach (var item in allBundleUsedInfo)
         {
             GUILayout.Space(20);
-            GUILayout.Label(index + ". Assetbundle:  " + item.Key);
+            GUILayout.Label(index + ". Assetbundle:  " + item.Key + AssetBundleManager.GetAssetByName(item.Key).GetInstanceID());
             if (GUILayout.Button("卸载此bundle"))
             {
                 AssetBundleManager.UnloadOneAsset(item.Key,true);

@@ -8,10 +8,11 @@ public class AssetManagerWindow : EditorWindow {
     static AssetManagerWindow m_assetManagerWindow;
 
     #region toolbar 相关
-    static readonly string[] toolbarStrings = new string[] { "Asset -> Obj", "Obj -> Asset" }; //标签内容
+    static readonly string[] toolbarStrings = new string[] { "Asset -> Obj", "Obj -> Asset" ,"All Object"}; //标签内容
     static int toolbarSelected;//当前页签选择
     const int c_asset2Obj = 0;//"Asset -> Obj"
     const int c_obj2Asset = 1;//"Obj -> Asset"
+    const int c_allObject = 2; //所有
     #endregion
 
     #region GUI相关

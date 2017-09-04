@@ -18,7 +18,7 @@ public class AssetBundleManager {
     private static Dictionary<string, AssetBundle> s_allLoadedBundle = new Dictionary<string, AssetBundle>();//所有已经加载的bundle
     private static Dictionary<string, int> s_allLoadedBundleUsedNum = new Dictionary<string, int>();//所有已经加载的bundle 被引用的数量
 
-    private static Dictionary<int, List<string>> s_allAssetUsedBundle = new Dictionary<int,List<string>>();//所有asset -> bundle 引用  key是instanceID
+    private static Dictionary<int, List<string>> s_allAssetUsedBundle = new Dictionary<int, List<string>>();//所有asset -> bundle 引用  key是instanceID
     private static List<string> needUnLoadBundleName = new List<string>();//需要卸载的assetbundle
     #endregion
 
@@ -47,7 +47,7 @@ public class AssetBundleManager {
     //卸载所有assetBundle  unload(true)
     static public void UnloadAllAssetBundle(bool must)
     {
-        
+
         foreach (var item in s_allLoadedBundle)
         {
             needUnLoadBundleName.Add(item.Key);
@@ -57,7 +57,7 @@ public class AssetBundleManager {
 
     }
 
-    
+
     #endregion
 
     #region 内部调用的方法
@@ -81,7 +81,7 @@ public class AssetBundleManager {
     {
         Init();
         string l_path = Path.Combine(Application.dataPath, c_bundleRootPath);
-        l_path = Path.Combine(l_path,bundleName);
+        l_path = Path.Combine(l_path, bundleName);
 
         AssetBundle myLoadedAssetBundle = LoadOneAssetBundle(bundleName, l_path);
 
@@ -109,7 +109,7 @@ public class AssetBundleManager {
             }
             else
             {
-               
+
                 T asset = myLoadedAssetBundle.LoadAsset<T>(resName);
                 //Debug.Log(asset);
                 //记录asset 与 bundle 之间的关系
@@ -182,7 +182,17 @@ public class AssetBundleManager {
     //获取当前所有资源对AssetBundle 的使用情况  (asset -> bundle)
     public static Dictionary<int, List<string>> GetAllAssetUsedBundle()
     {
+        foreach (var item in s_allLoadedBundleUsedNum)
+        {
+            Debug.Log(s_allLoadedBundle[item.Key].GetInstanceID().ToString() + s_allLoadedBundle[item.Key]);
+        }
         return new Dictionary<int, List<string>>(s_allAssetUsedBundle);
+    }
+
+    //通过Asset名 获取Asset
+    public static Object GetAssetByName(string assetName)
+    {
+        return s_allLoadedBundle[assetName];
     }
 
     #endregion
@@ -222,7 +232,7 @@ public class AssetBundleManager {
             }
             else if (must)
             {
-                Debug.LogWarning("强制卸载Assetbundle: " + bundleName + "!  其引用数量为" + s_allLoadedBundleUsedNum[bundleName]);
+                Debug.LogWarning("强制卸载Assetbundle: " + bundleName +" 其引用数量为" + s_allLoadedBundleUsedNum[bundleName]);
                 RemoveBundleDataAndUnload(bundleName, false);
             }
             else
@@ -245,9 +255,11 @@ public class AssetBundleManager {
         {
             if (item.Value.Contains(bundleName))
             {
+                AssetManager.SetAssetFree(item.Key);
                 item.Value.Remove(bundleName);
             }
         }
+        Debug.Log("卸载 assetBundle： " + s_allLoadedBundle[bundleName].GetInstanceID());
 
         s_allLoadedBundle[bundleName].Unload(unloadAllLoadedObjects);
         s_allLoadedBundle.Remove(bundleName);
