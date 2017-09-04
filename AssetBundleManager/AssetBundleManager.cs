@@ -29,37 +29,35 @@ public class AssetBundleManager {
         InitAssetBundleMainfest();
     }
 
-    //遍历,卸载所有不用的AssetBundle
-    public static void UnloadUselessAssetBundle()
+    //卸载一个assetbundle 
+    static public void UnloadOneAsset(string assetName, bool must)
     {
-        needUnLoadBundleName.Clear();
-        foreach (var item in s_allLoadedBundleUsedNum)
-        {
-            if (s_allLoadedBundleUsedNum[item.Key] < 1)
-            {
-                needUnLoadBundleName.Add(item.Key);
-            }
-        }
+        RemoveAssetBundle(assetName, must);
+    }
 
-        for (int i = 0; i < needUnLoadBundleName.Count; i++)
+    //卸载自定义列表中的Assetbundle 
+    static public void UnloadSomeAsset(List<string> assetNames, bool must)
+    {
+        for (int i = 0; i < assetNames.Count; i++)
         {
-            RemoveAssetBundle(needUnLoadBundleName[i]);
+            RemoveAssetBundle(assetNames[i], must);
         }
     }
 
-    //强制卸载所有assetBundle
-    static public void UnloadAllAssetBundle()
+    //卸载所有assetBundle  unload(true)
+    static public void UnloadAllAssetBundle(bool must)
     {
+        
         foreach (var item in s_allLoadedBundle)
         {
-            item.Value.Unload(true);
+            needUnLoadBundleName.Add(item.Key);
         }
-        s_allLoadedBundle.Clear();
-        s_allLoadedBundleUsedNum.Clear();
+
+        UnloadNeedUnLoadBundle(must);
+
     }
 
-
-
+    
     #endregion
 
     #region 内部调用的方法
@@ -148,7 +146,7 @@ public class AssetBundleManager {
 
         for (int i = 0; i < dependAssets.Length; i++)
         {
-            //Debug.Log("记录bundle： :" + abName + "的依赖包：" + dependAssets[i]);
+            Debug.Log("记录bundle： :" + abName + "的依赖包：" + dependAssets[i]);
             RecordAssetUsedBundle(obj, dependAssets[i]);
         }
     }
@@ -206,22 +204,23 @@ public class AssetBundleManager {
             myAssetBundle = AssetBundle.LoadFromFile(path);
 
             s_allLoadedBundle.Add(name, myAssetBundle); //添加为已加载
-            s_allLoadedBundleUsedNum.Add(name, 0); //引用数量 0
+            s_allLoadedBundleUsedNum.Add(name, 1); //引用数量 0
             //Debug.Log("加载新引用  " + name + s_allLoadedBundleUsedNum[name]);
         }
         return myAssetBundle;
     }
 
-    //释放一个bundle 。force == true时表示如果还有引用 , 则使用unload（false），会产生游离asset，游离asset 由  assetManager进行 管理、卸载 
-    static private void RemoveAssetBundle(string bundleName,bool force = false)
+    //释放一个bundle 。must == true时表示如果还有引用 , 则使用unload（false），会产生游离asset，游离asset 由  assetManager进行 管理、卸载 
+    static private void RemoveAssetBundle(string bundleName,bool must)
     {
         if (s_allLoadedBundle.ContainsKey(bundleName))
         {
             if (s_allLoadedBundleUsedNum[bundleName] < 1)
             {
+                Debug.LogWarning("正常卸载Assetbundle: " + bundleName );
                 RemoveBundleDataAndUnload(bundleName, true);
             }
-            else if (force)
+            else if (must)
             {
                 Debug.LogWarning("强制卸载Assetbundle: " + bundleName + "!  其引用数量为" + s_allLoadedBundleUsedNum[bundleName]);
                 RemoveBundleDataAndUnload(bundleName, false);
@@ -250,12 +249,21 @@ public class AssetBundleManager {
             }
         }
 
-
-
         s_allLoadedBundle[bundleName].Unload(unloadAllLoadedObjects);
         s_allLoadedBundle.Remove(bundleName);
         s_allLoadedBundleUsedNum.Remove(bundleName);
     }
+
+    //移除卸载列表中的所有bundle
+    static private void UnloadNeedUnLoadBundle(bool unloadAllLoadedObjects)
+    {
+        for (int i = 0; i < needUnLoadBundleName.Count; i++)
+        {
+            RemoveAssetBundle(needUnLoadBundleName[i], unloadAllLoadedObjects);
+        }
+        needUnLoadBundleName.Clear();
+    }
+
 
     #endregion
 }

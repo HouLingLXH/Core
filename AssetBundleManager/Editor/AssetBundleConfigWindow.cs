@@ -86,7 +86,6 @@ public class AssetBundleConfigWindow : EditorWindow {
             
             GUILayout.Label(" 对象： ");
             EditorGUILayout.ObjectField(obj, typeof(Object), true);
-
             GUILayout.EndHorizontal();
 
             GUILayout.Space(10);
@@ -139,6 +138,11 @@ public class AssetBundleConfigWindow : EditorWindow {
         {
             GUILayout.Space(20);
             GUILayout.Label(index + ". Assetbundle:  " + item.Key);
+            if (GUILayout.Button("卸载此bundle"))
+            {
+                AssetBundleManager.UnloadOneAsset(item.Key,true);
+            }
+
             GUILayout.BeginHorizontal();
             GUILayout.Space(100);
             GUILayout.BeginVertical();
