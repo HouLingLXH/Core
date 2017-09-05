@@ -295,10 +295,13 @@ public class AssetManager : MonoBehaviour {
     {
         return m_loadedAssetIsFree[assetInstanceID];
     }
+
+    #endregion
+    #endregion
+
+
+    private void OnApplicationQuit()
+    {
         
-    #endregion
-    #endregion
-
-
-
+    }
 }

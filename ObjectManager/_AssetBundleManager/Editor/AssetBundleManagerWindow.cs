@@ -10,7 +10,7 @@ public class AssetBundleManagerWindow : EditorWindow {
     static Dictionary<string, List<int>> allBundleUsedInfo = new Dictionary<string, List<int>>(); //所有Assetbundle -> Asset 的情况
 
     #region toolBar 相关
-    static readonly string[] toolbarStrings = new string[] { "Object -> Bundle", "Bundle -> Object" };
+    static readonly string[] toolbarStrings = new string[] { "Asset -> Bundle", "Bundle -> Asset" };
     const int c_selectObject = 0;
     const int c_selectBundle = 1;
     private static int toolbarSelected; //当前选择的toolbar
@@ -82,7 +82,7 @@ public class AssetBundleManagerWindow : EditorWindow {
             GUILayout.Space(20);
             GUILayout.BeginHorizontal();
             GUILayout.Label(index +". ID:  " + item.Key.ToString());
-            Object obj = GetObjectFromID(item.Key);
+            Object obj = ObjectManager.GetObjectFromID(item.Key);
             
             GUILayout.Label(" 对象： ");
             EditorGUILayout.ObjectField(obj, typeof(Object), true);
@@ -150,7 +150,7 @@ public class AssetBundleManagerWindow : EditorWindow {
 
             for (int i = 0; i < item.Value.Count; i++)
             {
-                Object obj = GetObjectFromID(item.Value[i]);
+                Object obj = ObjectManager.GetObjectFromID(item.Value[i]);
                 EditorGUILayout.ObjectField(obj, typeof(Object), true);
             }
 
@@ -168,17 +168,5 @@ public class AssetBundleManagerWindow : EditorWindow {
 
     }
 
-    //通过Instance ID 查找 Obj
-    static Object GetObjectFromID(int id)
-    {
-        foreach (Object o in Resources.FindObjectsOfTypeAll(typeof(Object)))
-        {
-            if (o.GetInstanceID() == id)
-            {
-                return o;
-            }
-        }
-        return null;
-    }
 
 }

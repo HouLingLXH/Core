@@ -8,7 +8,7 @@ public class AssetBundleManager {
     #region 常量
     public const string c_streamingAssetsPathName = "Assets/" + c_bundleRootPath; //bundle 的保存位置
 
-    private const string c_bundleRootPath = "Scripts/Core/AssetBundleManager/Example_AssetBundleManager/StreamingAssets";//从Assets下 到 bundle 根节点根据自己需要修改
+    private const string c_bundleRootPath = "Scripts/Core/ObjectManager/_AssetBundleManager/Example_AssetBundleManager/StreamingAssets";//从Assets下 到 bundle 根节点根据自己需要修改
     private const string c_mainBundleName = "StreamingAssets";//主bundle 名称
     private const string c_manifestName = "AssetBundleManifest";//主manifest 名称
     #endregion
