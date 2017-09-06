@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class AssetManager : MonoBehaviour {
 
@@ -39,6 +40,7 @@ public class AssetManager : MonoBehaviour {
 
 
     //从内存 卸载一个 资源的 引用标志,并卸载资源。 (当该资源没有与bundle 断开连接时，不能用该方法删除，否则bundle 下次无法load该资源)
+    
     static public void UnloadOneAsset(Object asset)
     {
         bool b_canRemove = false;
@@ -48,7 +50,7 @@ public class AssetManager : MonoBehaviour {
             assetName = GetNameByAsset(asset);
             if (m_allAssetBeUsedByObj.ContainsKey(asset))
             {
-                if (m_allAssetBeUsedByObj[asset].Count < 1)
+                if (m_allAssetBeUsedByObj[asset].Count < 10) // 10为测试时使用 ，实际应该是1
                 {
                     if (IsFreeAsset(asset.GetInstanceID()))
                     {
@@ -77,6 +79,11 @@ public class AssetManager : MonoBehaviour {
         }
         if (b_canRemove)
         {
+            ObjectManager.ClearAllObject();
+#if UNITY_EDITOR
+            ObjectManagerWindow.ClearAllData();
+
+#endif
             m_allLoadedAsset2.Remove(asset);
             m_allLoadedAsset.Remove(assetName);
             Debug.Log("卸载资源 + " + asset);
@@ -89,10 +96,14 @@ public class AssetManager : MonoBehaviour {
                 DestroyImmediate(asset, true);
             }
             
+            Resources.UnloadUnusedAssets();  //因为现在还没有卸载子资源的操作，只能遍历卸载，但是性能差
 
         }
        
     }
+
+
+    
 
     //从内存 卸载所有不用的资源 
     static public void UnloadAllAsset()
@@ -118,9 +129,9 @@ public class AssetManager : MonoBehaviour {
         }
     }
 
-    #endregion 
+#endregion
 
-    #region 内部使用的方法
+#region 内部使用的方法
     //先读缓存，再从bundle中load
     static public T Load<T>(string assetName) where T : UnityEngine.Object
     {
@@ -225,7 +236,7 @@ public class AssetManager : MonoBehaviour {
     }
 
 
-    #region 编辑器工具
+#region 编辑器工具
     //获取所有已经加载的Asset 
     static public Dictionary<string, Object> GetAllLoadedAsset()
     {
@@ -249,10 +260,10 @@ public class AssetManager : MonoBehaviour {
     {
         return new Dictionary<int, Object>(m_objUseAsset);
     }
-    #endregion
+#endregion
 
 
-    #region 类内工具
+#region 类内工具
     //可以被Resources.Unload() 则返回true
     static private bool CanBeResourcesUnload(Object asset)
     {
@@ -278,6 +289,7 @@ public class AssetManager : MonoBehaviour {
     }
 
 
+
     //通过名称获取asset
     static private Object GetAssetByName(string assetName)
     {
@@ -296,12 +308,8 @@ public class AssetManager : MonoBehaviour {
         return m_loadedAssetIsFree[assetInstanceID];
     }
 
-    #endregion
-    #endregion
+#endregion
+#endregion
 
 
-    private void OnApplicationQuit()
-    {
-        
-    }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+
 public class ObjectManagerWindow : EditorWindow {
 
 
@@ -23,6 +24,18 @@ public class ObjectManagerWindow : EditorWindow {
     {
         GetWindow(typeof(ObjectManagerWindow));
     }
+
+    //防止object 被引用，在清理时不能清理
+    public static void ClearAllData()
+    {
+        allAssetBundle = null;
+        allGameObject = null;
+        InHierarchyGo = null;
+        OutHierarchyGo = null;
+        assetMaterial = null;
+        assetTexture = null;
+        assetMesh = null;
+}
 
     private void OnGUI()
     {
@@ -180,16 +193,26 @@ public class ObjectManagerWindow : EditorWindow {
         }
     }
 
+    static private List<Object> assetMaterial =new List<Object>();//所有Material
+    static private List<Object> assetTexture = new List<Object>();//所有Texture
+    static private List<Object> assetMesh = new List<Object>();//所有Mesh
+
     //更新美术资源列表
     private void UpdateArtAsset()
     {
         switch (assetToolbarSelect)
         {
             case c_Material:
+                assetMaterial = ObjectManager.GetSomeObject<Material>();
                 break;
             case c_Texture:
+                assetTexture = ObjectManager.GetSomeObject<Texture>();
                 break;
             case c_Mesh:
+                Debug.Log("qq" + assetMesh.Count);
+                assetMesh = null;
+                assetMesh = ObjectManager.GetSomeObject<Mesh>();
+                Debug.Log("aa" + assetMesh.Count);
                 break;
         }
     }
@@ -197,18 +220,19 @@ public class ObjectManagerWindow : EditorWindow {
     //展示所有材质
     private void ShowAllMaterial()
     {
-
+        ShowSomeObjectInfo(assetMaterial);
     }
 
     //展示所有Texture
     private void ShowAllTexture()
     {
+        ShowSomeObjectInfo(assetTexture);
     }
 
     //展示所有Mesh
     private void ShowAllMesh()
     {
-
+        ShowSomeObjectInfo(assetMesh);
     }
 
     #endregion

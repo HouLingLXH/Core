@@ -11,12 +11,19 @@ public class ObjectManager : MonoBehaviour {
     {
         allObject = null;
         allObject = Resources.FindObjectsOfTypeAll(typeof(Object));
+        Debug.Log(allObject.Length);
     }
 
-    //获取所有当前项目中的Object,当然，给的是克隆体
+    //获取所有当前项目中的Object
     static public Object[] GetAllObject()
     {
         return allObject;
+    }
+
+    //防止因为其中引用，而不能卸载无用的资源
+    static public void ClearAllObject()
+    {
+        allObject = null;
     }
 
     //获取某种类型的Obj
