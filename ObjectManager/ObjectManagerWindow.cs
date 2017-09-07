@@ -33,7 +33,7 @@ public class ObjectManagerWindow : EditorWindow {
         InHierarchyGo = null;
         OutHierarchyGo = null;
         assetMaterial = null;
-        assetTexture = null;
+        assetTexture2D = null;
         assetMesh = null;
 }
 
@@ -130,7 +130,7 @@ public class ObjectManagerWindow : EditorWindow {
             case c_AssetBunld: ShowAssetBundle(); break;
             case c_ArtAsset: ShowAllArtAsset(); break;
             case c_GameObject: ShowAllGameObject(); break;
-            case c_Others: ; break;
+            case c_Others: ShowAllObject(); break;
         }
         GUILayout.EndScrollView();
     }
@@ -188,13 +188,15 @@ public class ObjectManagerWindow : EditorWindow {
         switch (assetToolbarSelect)
         {
             case c_Material: ShowAllMaterial(); break;
-            case c_Texture: ShowAllTexture(); break;
+            case c_Texture: ShowAllTexture2D(); break;
             case c_Mesh: ShowAllMesh(); break;
         }
     }
-
+    //材质资源
     static private List<Object> assetMaterial =new List<Object>();//所有Material
-    static private List<Object> assetTexture = new List<Object>();//所有Texture
+    //图片资源
+    static private List<Object> assetTexture2D = new List<Object>();//所有Texture
+    //网格资源
     static private List<Object> assetMesh = new List<Object>();//所有Mesh
 
     //更新美术资源列表
@@ -206,13 +208,11 @@ public class ObjectManagerWindow : EditorWindow {
                 assetMaterial = ObjectManager.GetSomeObject<Material>();
                 break;
             case c_Texture:
-                assetTexture = ObjectManager.GetSomeObject<Texture>();
+                //由于unity内置的Texture2D 太多，导致无法管理。所以要想管理，必须添加自己的标记，进行筛选
+                assetTexture2D = ObjectManager.GetSomeObject<Texture2D>();
                 break;
             case c_Mesh:
-                Debug.Log("qq" + assetMesh.Count);
-                assetMesh = null;
                 assetMesh = ObjectManager.GetSomeObject<Mesh>();
-                Debug.Log("aa" + assetMesh.Count);
                 break;
         }
     }
@@ -224,33 +224,45 @@ public class ObjectManagerWindow : EditorWindow {
     }
 
     //展示所有Texture
-    private void ShowAllTexture()
+    private void ShowAllTexture2D()
     {
-        ShowSomeObjectInfo(assetTexture);
+        ShowSomeObjectInfo(assetTexture2D);
     }
 
     //展示所有Mesh
     private void ShowAllMesh()
     {
-        ShowSomeObjectInfo(assetMesh);
+        // gui绘制需要mesh，如果绘制mesh，就会再次增加mesh，导致指数增长
+        //ShowSomeObjectInfo(assetMesh);
+        GUILayout.Label("mesh 总数：" + assetMesh.Count);
+        
     }
 
     #endregion
 
+    #region 展示所有Obj
+    private void ShowAllObject()
+    {
+        ShowSomeObjectInfo(allObject);
+    }
+    #endregion
 
     #endregion
 
     #region 工具方法
+
     //展示一个Object 信息
     private void ShowOneObjectInfo(Object obj,int index = 0)
     {
         GUILayout.BeginHorizontal();
-        GUILayout.Label(index.ToString(),GUILayout.Width(30));
+        GUILayout.Label(index.ToString(),GUILayout.Width(50));
         if (obj != null)
         {
             GUILayout.Label(". ID:  " + obj.GetInstanceID(),GUILayout.Width(150) );
             GUILayout.Label(" 名称： " + obj.name, GUILayout.Width(200));
-            EditorGUILayout.ObjectField(obj, typeof(Object), false);
+            GUILayout.Label(" 类型： " + obj.GetType(), GUILayout.Width(200));
+            EditorGUILayout.ObjectField(obj, typeof(Object), true);
+
             if (obj.GetType() == typeof(GameObject))
             {
                 GUILayout.Label("activeInHierarchy: " + (obj as GameObject).activeInHierarchy);
@@ -266,6 +278,8 @@ public class ObjectManagerWindow : EditorWindow {
     {
         if (someObject != null)
         {
+            //展示部分Object的数量
+            GUILayout.Label("总数： " + someObject.Count);
             GUILayout.BeginVertical();
             for (int i = 0; i < someObject.Count; i++)
             {
@@ -274,9 +288,7 @@ public class ObjectManagerWindow : EditorWindow {
             }
             GUILayout.EndVertical();
         }
-       
     }
-
 
     #endregion
 

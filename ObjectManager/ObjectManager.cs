@@ -9,9 +9,9 @@ public class ObjectManager : MonoBehaviour {
     //更新所有Object
     static public void UpdateAllObject()
     {
-        allObject = null;
+        ClearAllObject();
+        Resources.UnloadUnusedAssets();
         allObject = Resources.FindObjectsOfTypeAll(typeof(Object));
-        Debug.Log(allObject.Length);
     }
 
     //获取所有当前项目中的Object
@@ -29,14 +29,9 @@ public class ObjectManager : MonoBehaviour {
     //获取某种类型的Obj
     static public List<Object> GetSomeObject<T> () where T : Object 
     {
-        List<Object> someObject = new List<Object>();
-        for (int i = 0; i < allObject.Length; i++)
-        {
-            if (allObject[i].GetType() == typeof(T))
-            {
-                someObject.Add(allObject[i]);
-            }
-        }
+        List<Object> someObject = new List<Object>( Resources.FindObjectsOfTypeAll(typeof(T)));
+
+
         return someObject;
     }
 
@@ -44,7 +39,8 @@ public class ObjectManager : MonoBehaviour {
     //通过Instance ID 查找 Obj
     static public Object GetObjectFromID(int id)
     {
-        foreach (Object o in Resources.FindObjectsOfTypeAll(typeof(Object)))
+        UpdateAllObject();
+        foreach (Object o in allObject)
         {
             if (o.GetInstanceID() == id)
             {
