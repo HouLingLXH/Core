@@ -6,9 +6,10 @@ using UnityEngine;
 public class AssetBundleManager {
 
     #region 常量
-    public const string c_streamingAssetsPathName = "Assets/" + c_bundleRootPath; //bundle 的保存位置
+    public const string c_streamingAssetsPathName = "Assets/" + c_bundleTestRootPath; //bundle 的保存位置
 
-    private const string c_bundleRootPath = "Scripts/Core/ObjectManager/_AssetBundleManager/Example_AssetBundleManager/StreamingAssets";//从Assets下 到 bundle 根节点根据自己需要修改
+   // private const string c_bundleTestRootPath = "Scripts/Core/ObjectManager/_AssetBundleManager/Example_AssetBundleManager/StreamingAssets";//从Assets下 到 bundle 根节点根据自己需要修改 (测试版)
+    private const string c_bundleTestRootPath = "StreamingAssets";//从Assets下 到 bundle 根节点根据自己需要修改 （正式版）
     private const string c_mainBundleName = "StreamingAssets";//主bundle 名称
     private const string c_manifestName = "AssetBundleManifest";//主manifest 名称
     #endregion
@@ -68,7 +69,7 @@ public class AssetBundleManager {
         {
             return;
         }
-        string l_path = Path.Combine(Application.dataPath, c_bundleRootPath);
+        string l_path = Path.Combine(Application.dataPath, c_bundleTestRootPath);
         l_path = Path.Combine(l_path, c_mainBundleName);
         var myLoadedAssetBundle = AssetBundle.LoadFromFile(l_path);
         s_assetBundleManifest = (AssetBundleManifest)myLoadedAssetBundle.LoadAsset(c_manifestName, typeof(AssetBundleManifest));
@@ -80,7 +81,7 @@ public class AssetBundleManager {
     static public T Load<T>(string bundleName, string resName = null, bool isDepend = false) where T : UnityEngine.Object
     {
         Init();
-        string l_path = Path.Combine(Application.dataPath, c_bundleRootPath);
+        string l_path = Path.Combine(Application.dataPath, c_bundleTestRootPath);
         l_path = Path.Combine(l_path, bundleName);
 
         AssetBundle myLoadedAssetBundle = LoadOneAssetBundle(bundleName, l_path);
