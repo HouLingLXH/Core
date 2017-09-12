@@ -7,7 +7,7 @@ public class ApplicationManager : MonoBehaviour {
     #region debug设置
 
     //当前debug 模式
-    private static bool b_openDebug = true;
+    private static bool b_openDebug = false;
 
     //获取当前debug状态
 

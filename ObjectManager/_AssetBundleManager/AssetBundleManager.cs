@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AssetBundleManager {
 
@@ -123,7 +124,6 @@ public class AssetBundleManager {
             }
             else
             {
-
                 T asset = myLoadedAssetBundle.LoadAsset<T>(resName);
                 //Debug.Log(asset);
                 //记录asset 与 bundle 之间的关系
@@ -133,6 +133,53 @@ public class AssetBundleManager {
 
         }
     }
+
+
+    public static AsyncOperation s_async_operation; //场景加载信息
+    //根据bundle 名称和 资源名  ，加载资源
+    static public IEnumerator LoadScene(string bundleName, string sceneName = null ,SceneLoadCallBack callBack = null) 
+    {
+        Init();
+        string l_path =
+#if UNITY_EDITOR
+             Path.Combine(Application.dataPath, c_bundleTestRootPath);
+#else
+            "jar:file://" + Application.dataPath + "!/assets/";
+#endif
+
+        l_path = Path.Combine(l_path, bundleName);
+
+        AssetBundle myLoadedAssetBundle = LoadOneAssetBundle(bundleName, l_path);
+
+        if (myLoadedAssetBundle == null)
+        {
+            Debug.Log("Failed to load AssetBundle:" + bundleName);
+            yield return null;
+        }
+        else
+        {
+            if (s_assetBundleManifest != null)
+            {
+                string[] dependAssets = s_assetBundleManifest.GetAllDependencies(bundleName);
+
+                for (int i = 0; i < dependAssets.Length; i++)
+                {
+                    //Debug.Log("加载bundle:" + bundleName + "的依赖包：" + dependAssets[i]);
+                    Load<Object>(dependAssets[i], isDepend: true);
+                }
+            }
+        }
+        if (callBack != null)
+        {
+            callBack();
+        }
+
+        s_async_operation = SceneManager.LoadSceneAsync(sceneName);
+        yield return s_async_operation;
+    }
+
+
+
 
     //记录 Asset 对 Bundle 使用情况
     static public void RecordAssetUsedBundle(Object obj, string abName)
@@ -294,4 +341,5 @@ public class AssetBundleManager {
 #endregion
 }
 
-public delegate void AssetBundleLoadCallBack(GameObjectInfo goInfo);
+public delegate void SceneLoadCallBack();
+
