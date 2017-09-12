@@ -17,7 +17,7 @@ public class ObjectPoolTest : MonoBehaviour {
 
     public void CreatObjByPool()
     {
-        GameObject go = ObjectPool.CreatGameObjByPool("Cube");
+        GameObject go = ObjectPool.CreatGameObjByPool("Cube","cube");
         allObj.Add(go);
         go.transform.SetParent(transform);
         go.transform.position = Vector3.zero;

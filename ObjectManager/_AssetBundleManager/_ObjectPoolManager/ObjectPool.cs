@@ -24,7 +24,7 @@ public class ObjectPool : MonoBehaviour {
     }
 
     //创建
-    public static GameObject CreatGameObjByPool(string name, bool active = true)
+    public static GameObject CreatGameObjByPool(string name,string assetPath, bool active = true)
     {
         Init();
         GameObject obj = null;
@@ -38,7 +38,7 @@ public class ObjectPool : MonoBehaviour {
         }
         if (obj == null)
         {
-            obj = GameObjectManager.CreatGameObect(name);
+            obj = GameObjectManager.CreatGameObect(name, assetPath);
         }
 
         obj.SetActive(active);

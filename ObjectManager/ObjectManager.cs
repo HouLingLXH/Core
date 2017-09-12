@@ -44,11 +44,11 @@ public class ObjectManager : MonoBehaviour {
         {
             if (o.GetInstanceID() == id)
             {
-                Debug.Log("找到 Object： " + id);
+                //Debug.Log("找到 Object： " + id);
                 return o;
             }
         }
-        Debug.Log("没找到 Object： " + id);
+        //Debug.Log("没找到 Object： " + id);
         return null;
     }
 

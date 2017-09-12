@@ -19,7 +19,7 @@ public class Test : MonoBehaviour
 
         for (int i = 0; i < 5; i++)
         {
-            GameObject go3 = GameObjectManager.CreatGameObjectByPool("Cube");
+            GameObject go3 = GameObjectManager.CreatGameObjectByPool("Cube","cube");
         }
         
 

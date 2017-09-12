@@ -19,14 +19,16 @@ public class ObjectManagerWindow : EditorWindow {
 
     #endregion
 
+
     [MenuItem("Window/Object Manager")]
     public static void Open()
     {
         GetWindow(typeof(ObjectManagerWindow));
+        AssetManager.EventClearAllObject = ClearAllData();
     }
 
     //防止object 被引用，在清理时不能清理
-    public static void ClearAllData()
+    public static ClearAllObject ClearAllData()
     {
         allAssetBundle = null;
         allGameObject = null;
@@ -35,7 +37,8 @@ public class ObjectManagerWindow : EditorWindow {
         assetMaterial = null;
         assetTexture2D = null;
         assetMesh = null;
-}
+        return null;
+    }
 
     private void OnGUI()
     {
@@ -294,3 +297,4 @@ public class ObjectManagerWindow : EditorWindow {
 
 
 }
+

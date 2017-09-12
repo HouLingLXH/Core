@@ -13,9 +13,9 @@ public class GameObjectManager : MonoBehaviour {
     //从对象池创建 gameObjec
     //因为active 会有大量时间消耗，默认不改变其active 状态
     //涉及partical 的重播，可以调用其ParticalHelper 的 RePlay() 方法
-    static public GameObject CreatGameObjectByPool(string name, bool active = true)
+    static public GameObject CreatGameObjectByPool(string name,string assetPath, bool active = true)
     {
-        return ObjectPool.CreatGameObjByPool(name,active);
+        return ObjectPool.CreatGameObjByPool(name, assetPath,active);
     }
 
     //用对象池删除 gameObjec  
@@ -26,13 +26,13 @@ public class GameObjectManager : MonoBehaviour {
     }
 
     //直接创建
-    static public GameObject CreatGameObect(string name)
+    static public GameObject CreatGameObect(string assetPath,string name)
     {
         GameObject prafeb = null;
 
         if (ApplicationManager.B_useBundle)
         {
-            prafeb = AssetManager.Load<GameObject>(name);
+            prafeb = AssetManager.Load<GameObject>(assetPath,name);
         }
         else
         {

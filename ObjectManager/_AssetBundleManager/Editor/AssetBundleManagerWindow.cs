@@ -43,7 +43,7 @@ public class AssetBundleManagerWindow : EditorWindow {
                 {
                     Directory.CreateDirectory(path);
                 }
-                BuildPipeline.BuildAssetBundles(path, BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64);
+                BuildPipeline.BuildAssetBundles(path, BuildAssetBundleOptions.None, BuildTarget.Android);
                 AssetDatabase.Refresh();
             }
 

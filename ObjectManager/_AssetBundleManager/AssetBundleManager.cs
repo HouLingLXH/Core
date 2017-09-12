@@ -69,7 +69,14 @@ public class AssetBundleManager {
         {
             return;
         }
-        string l_path = Path.Combine(Application.dataPath, c_bundleTestRootPath);
+        string l_path =
+        #if UNITY_EDITOR
+            Path.Combine(Application.dataPath, c_bundleTestRootPath);
+        #else
+            "jar:file://"+Application.dataPath + "!/assets/";
+        #endif
+
+
         l_path = Path.Combine(l_path, c_mainBundleName);
         var myLoadedAssetBundle = AssetBundle.LoadFromFile(l_path);
         s_assetBundleManifest = (AssetBundleManifest)myLoadedAssetBundle.LoadAsset(c_manifestName, typeof(AssetBundleManifest));
@@ -81,7 +88,13 @@ public class AssetBundleManager {
     static public T Load<T>(string bundleName, string resName = null, bool isDepend = false) where T : UnityEngine.Object
     {
         Init();
-        string l_path = Path.Combine(Application.dataPath, c_bundleTestRootPath);
+        string l_path =
+        #if UNITY_EDITOR
+             Path.Combine(Application.dataPath, c_bundleTestRootPath);
+        #else
+            "jar:file://" + Application.dataPath + "!/assets/";
+        #endif
+
         l_path = Path.Combine(l_path, bundleName);
 
         AssetBundle myLoadedAssetBundle = LoadOneAssetBundle(bundleName, l_path);
@@ -176,9 +189,9 @@ public class AssetBundleManager {
         }
     }
 
-    #endregion
+#endregion
 
-    #region 提供编辑器调用的方法
+#region 提供编辑器调用的方法
 
     //获取当前所有资源对AssetBundle 的使用情况  (asset -> bundle)
     public static Dictionary<int, List<string>> GetAllAssetUsedBundle()
@@ -196,9 +209,9 @@ public class AssetBundleManager {
         return s_allLoadedBundle[assetName];
     }
 
-    #endregion
+#endregion
 
-    #region 内部工具方法
+#region 内部工具方法
 
     //加载一个AsssetBundle, 并记录
     static private AssetBundle LoadOneAssetBundle(string name,string path)
@@ -278,7 +291,7 @@ public class AssetBundleManager {
     }
 
 
-    #endregion
+#endregion
 }
 
 public delegate void AssetBundleLoadCallBack(GameObjectInfo goInfo);

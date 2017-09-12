@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 public class AssetManager : MonoBehaviour {
 
@@ -15,11 +14,13 @@ public class AssetManager : MonoBehaviour {
 
     static List<string> m_allNeedUnloadAssetName = new List<string>(); //所有准备卸载的资源名
 
+    public static ClearAllObject EventClearAllObject;
     #region 提供外部使用的方法
 
     //初始化
     static public void Init()
     {
+       
     }
 
     //从内存 卸载一个 资源的 引用标志,并卸载资源。
@@ -81,7 +82,8 @@ public class AssetManager : MonoBehaviour {
         {
             ObjectManager.ClearAllObject();
 #if UNITY_EDITOR
-            ObjectManagerWindow.ClearAllData();
+
+            EventClearAllObject();
 
 #endif
             m_allLoadedAsset2.Remove(asset);
@@ -133,7 +135,7 @@ public class AssetManager : MonoBehaviour {
 
 #region 内部使用的方法
     //先读缓存，再从bundle中load
-    static public T Load<T>(string assetName) where T : UnityEngine.Object
+    static public T Load<T>(string assetPath,string assetName) where T : UnityEngine.Object
     {
         if (m_allLoadedAsset.ContainsKey(assetName))
         {
@@ -142,7 +144,7 @@ public class AssetManager : MonoBehaviour {
         }
         else
         {
-            T asset = AssetBundleManager.Load<T>("cube", assetName); //以后要自动读取bundle名
+            T asset = AssetBundleManager.Load<T>(assetPath, assetName); //以后要自动读取bundle名
 
             //对load的Asset进行记录
             RecordNewAsset(assetName, asset);
@@ -313,3 +315,5 @@ public class AssetManager : MonoBehaviour {
 
 
 }
+
+public delegate void ClearAllObject();

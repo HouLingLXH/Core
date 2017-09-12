@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class UIBase : MonoBehaviour {
 
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update () {
         OnUpdate();
     }
 
@@ -23,7 +23,7 @@ public class UIBase : MonoBehaviour {
 
     public virtual void OnClose()
     {
-
+        GameObjectManager.DestroyGameObjectByPool(gameObject,false);
     }
 
     public virtual void OnUpdate()

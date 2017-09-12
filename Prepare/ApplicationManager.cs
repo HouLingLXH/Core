@@ -39,6 +39,7 @@ public class ApplicationManager : MonoBehaviour {
     private void Start()
     {
         Debug.unityLogger.logEnabled = B_openDebug;
+        UIManager.OpenUI<LoadingWindow>("ui/loadingwindow");
     }
 
 }

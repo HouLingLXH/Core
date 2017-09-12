@@ -29,7 +29,7 @@ public class GameObjectManagerTest : MonoBehaviour {
 
     public void Btn_CreatCube()
     {
-        cube = GameObjectManager.CreatGameObect("Cube");
+        cube = GameObjectManager.CreatGameObect("cube","Cube");
     }
 
     public void Btn_DeleteCube()
