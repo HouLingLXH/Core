@@ -28,7 +28,17 @@ public class GameObjectManager : MonoBehaviour {
     //直接创建
     static public GameObject CreatGameObect(string name)
     {
-        GameObject prafeb = AssetManager.Load<GameObject>(name);
+        GameObject prafeb = null;
+
+        if (ApplicationManager.B_useBundle)
+        {
+            prafeb = AssetManager.Load<GameObject>(name);
+        }
+        else
+        {
+            //从 Resources 加载
+        }
+
 
         GameObject obj = Instantiate(prafeb);
         //记录 obj 与 Asset 间的关系
