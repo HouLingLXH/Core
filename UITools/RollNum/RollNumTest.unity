@@ -159,6 +159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rollMaterial: {fileID: 2100000, guid: f77a72b6a8e8e9040b865a2fe5cb5e8d, type: 2}
+  moveSpeed: 0
   aimIndex: 0
 --- !u!114 &763955650
 MonoBehaviour:
@@ -455,6 +456,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rollMaterial: {fileID: 2100000, guid: f77a72b6a8e8e9040b865a2fe5cb5e8d, type: 2}
+  moveSpeed: 0
   aimIndex: 0
 --- !u!114 &1521048014
 MonoBehaviour:
