@@ -10,46 +10,45 @@ public class RoolNum : MonoBehaviour {
     float index;
     
     public float aimIndex; //目标位置
-
-    public float AimIndex
-    {
-        get
-        {
-            return aimIndex;
-        }
-
-        set
-        {
-            aimIndex = value;
-        }
-    }
+    public float step;//每个数字的高度
 
     // Use this for initialization
     void Start () {
 
         GetComponent<Image>().material = Instantiate(rollMaterial);
         rollMaterial = GetComponent<Image>().material;
-       
+        rollMaterial.SetFloat("_Step", step);
     }
 
+    public void SetNum(int num )
+    {
+        aimIndex = num;
+        index = num;
+    }
+
+    public void Move(int animNum, float l_moveSpeed)
+    {
+        moveSpeed = l_moveSpeed;
+        aimIndex = animNum;
+    }
 
 
     // Update is called once per frame
     void Update() {
 
-        if (index == AimIndex || Mathf.Abs(AimIndex - index) < (0.03f))
+        if (index == aimIndex || Mathf.Abs(aimIndex - index) < (0.01f))
         {
-            index = AimIndex;
+            index = aimIndex;
         }
         else
         {
-            if (AimIndex > index)
+            if (aimIndex > index)
             {
-                index += Time.deltaTime * (AimIndex - index + 0.02f) * moveSpeed;
+                index += Time.deltaTime * (aimIndex - index + 0.02f) * moveSpeed;
             }
             else
             {
-                index -= Time.deltaTime * (index - AimIndex + 0.02f) * moveSpeed;
+                index -= Time.deltaTime * (index - aimIndex + 0.02f) * moveSpeed;
             }
         }
         rollMaterial.SetFloat("_ToNum", index);

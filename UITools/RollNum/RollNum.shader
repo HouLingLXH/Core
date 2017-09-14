@@ -3,7 +3,6 @@
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
-		_Speed("speed",float) = 1
 		_ToNum("toNum",float) = 1
         _Step("step",float) = 0.9 //每个数字的高度
 	}
@@ -47,9 +46,6 @@
 			{
 				v2f o;
 				o.vertex = UnityObjectToClipPos(v.vertex );
-				//_Speed *= _ToNum + (_ToNum- v.uv.y );
-				//v.uv += fixed2(0,_Time.y * _Speed );
-				
 				float aimUV_y = _ToNum * _Step; 
 
 				v.uv.y += aimUV_y;
