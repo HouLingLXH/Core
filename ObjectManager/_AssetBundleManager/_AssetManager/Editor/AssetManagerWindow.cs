@@ -5,7 +5,7 @@ using UnityEditor;
 
 public class AssetManagerWindow : EditorWindow {
 
-    static AssetManagerWindow m_assetManagerWindow;
+    //static AssetManagerWindow m_assetManagerWindow;
 
     #region toolbar 相关
     static readonly string[] toolbarStrings = new string[] { "Asset -> Obj", "Obj -> Asset" }; //标签内容
@@ -29,7 +29,7 @@ public class AssetManagerWindow : EditorWindow {
     [MenuItem("Window/Asset Manager")]
     static void Open()
     {
-        m_assetManagerWindow = EditorWindow.GetWindow(typeof(AssetManagerWindow)) as AssetManagerWindow;
+        GetWindow(typeof(AssetManagerWindow));
     }
 
     private void OnGUI()

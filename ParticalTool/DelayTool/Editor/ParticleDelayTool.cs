@@ -7,7 +7,7 @@ public class ParticleDelayTool : MonoBehaviour
 {
     public int lastTime = 0;
     public int time = 0;
-    public List<ParticleSystem> particleSystem = new List<ParticleSystem>(); 
+    public List<ParticleSystem> myParticleSystem = new List<ParticleSystem>(); 
 
 
     [ExecuteInEditMode]
@@ -33,15 +33,15 @@ public class ParticleDelayTool : MonoBehaviour
     //保存 当前延迟时间
     public void SaveSelfAndChild(int add)
     {
-        for (int i = 0; i < particleSystem.Count; i++)
+        for (int i = 0; i < myParticleSystem.Count; i++)
         {
-            ParticleSystem[] l_particleSystemChild = particleSystem[i].transform.GetComponentsInChildren<ParticleSystem>();
+            ParticleSystem[] l_particleSystemChild = myParticleSystem[i].transform.GetComponentsInChildren<ParticleSystem>();
 
             for (int k = 0; k < l_particleSystemChild.Length; k++)
             {
                 l_particleSystemChild[k].startDelay += ((time - lastTime) * add);
             }
-            particleSystem[i].startDelay = time;
+            myParticleSystem[i].startDelay = time;
 
             lastTime = time;
 
