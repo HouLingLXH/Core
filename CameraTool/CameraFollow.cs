@@ -85,7 +85,7 @@ public class CameraFollow : MonoBehaviour {
 	void Update () {
 
 
-        if (Tran_camera != null)
+        if (Tran_camera != null && tran_followTarget != null)
         {
             //position
             Vector3 v3_fromPos = Tran_camera.position;
