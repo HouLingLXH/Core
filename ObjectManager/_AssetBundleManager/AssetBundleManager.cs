@@ -243,10 +243,10 @@ public class AssetBundleManager {
     //获取当前所有资源对AssetBundle 的使用情况  (asset -> bundle)
     public static Dictionary<int, List<string>> GetAllAssetUsedBundle()
     {
-        foreach (var item in s_allLoadedBundleUsedNum)
-        {
-            Debug.Log(s_allLoadedBundle[item.Key].GetInstanceID().ToString() + s_allLoadedBundle[item.Key]);
-        }
+        //foreach (var item in s_allLoadedBundleUsedNum)
+        //{
+        //    Debug.Log(s_allLoadedBundle[item.Key].GetInstanceID().ToString() + s_allLoadedBundle[item.Key]);
+        //}
         return new Dictionary<int, List<string>>(s_allAssetUsedBundle);
     }
 

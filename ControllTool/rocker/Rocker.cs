@@ -36,6 +36,12 @@ public class Rocker : MonoBehaviour, IDragHandler, IEndDragHandler, IBeginDragHa
 
     }
 
+    public void Init(PlayerMove l_camp_moveComp, CameraFollow l_camp_cameraFollow)
+    {
+        moveComp = l_camp_moveComp;
+        cameraFollow = l_camp_cameraFollow;
+    }
+
     //摇杆归位
     public void Rehome()
     {
@@ -66,16 +72,20 @@ public class Rocker : MonoBehaviour, IDragHandler, IEndDragHandler, IBeginDragHa
     //摇杆中心 移动
     private void MoveRockerCenter(Vector3 moveDir)
     {
-        //不允许摇杆中心超出背景边界(背景宽度 - 杆宽度)
-        if (moveDir.sqrMagnitude > n_rockerActiveSizeHalfSqr)
+        if (moveComp != null && cameraFollow != null)
         {
-            moveDir = moveDir.normalized * n_rockerActiveSizeHalf;
-        }
+            //不允许摇杆中心超出背景边界(背景宽度 - 杆宽度)
+            if (moveDir.sqrMagnitude > n_rockerActiveSizeHalfSqr)
+            {
+                moveDir = moveDir.normalized * n_rockerActiveSizeHalf;
+            }
 
-        i_rockerCenter.transform.localPosition = new Vector3(moveDir.x, moveDir.z, 0);
-        //通知角色移动
-        float speed = moveDir.sqrMagnitude / n_rockerActiveSizeHalfSqr * (n_speedMax - n_speedMin) + n_speedMin;
-        moveComp.Move(moveDir.normalized.Vector3RotateInXZ2(cameraFollow.V3_RotOffset.y), speed);
+            i_rockerCenter.transform.localPosition = new Vector3(moveDir.x, moveDir.z, 0);
+            //通知角色移动
+            float speed = moveDir.sqrMagnitude / n_rockerActiveSizeHalfSqr * (n_speedMax - n_speedMin) + n_speedMin;
+            moveComp.Move(moveDir.normalized.Vector3RotateInXZ2(cameraFollow.V3_RotOffset.y), speed);
+        }
+        
     }
 
 
