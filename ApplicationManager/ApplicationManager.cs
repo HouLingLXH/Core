@@ -5,10 +5,17 @@ using UnityEngine;
 
 public class ApplicationManager : MonoBehaviour {
 
+
+    private static ApplicationManager instance;
+
+
     #region debug设置
 
     //当前debug 模式
     private static bool b_openDebug = true;
+
+    //debug面板
+    public GameObject debugCanvas;
 
     //获取当前debug状态
 
@@ -22,6 +29,11 @@ public class ApplicationManager : MonoBehaviour {
         {
             b_openDebug = value;
             Debug.unityLogger.logEnabled = b_openDebug;
+            if (Instance.debugCanvas != null)
+            {
+                Instance.debugCanvas.SetActive(b_openDebug);
+            }
+
         }
     }
     #endregion
@@ -43,24 +55,25 @@ public class ApplicationManager : MonoBehaviour {
         }
     }
 
-    #endregion
-
-
-    private void Reset()
+    static public ApplicationManager Instance
     {
-        
-    }
-
-    private FPSTool fpsTool;
-    private void InitFPSTool()
-    {
-        if (fpsTool == null)
+        get
         {
-            fpsTool = gameObject.AddComponent<FPSTool>();
-            fpsTool.SetState(B_openDebug);
+            if (instance == null)
+            {
+                instance = GameObject.Find("ApplicationManager").GetComponent<ApplicationManager>();
+            }
+
+            return instance;
+        }
+
+        set
+        {
+            instance = value;
         }
     }
 
+    #endregion
 
 
     //总游戏入口
@@ -71,10 +84,8 @@ public class ApplicationManager : MonoBehaviour {
 
 
 
-
-
         //正式进入游戏逻辑
-        UIManager.OpenUI<LoadingWindow>(LoadingWindow.c_assetPath);
+        //UIManager.OpenUI<LoadingWindow>(LoadingWindow.c_assetPath);
         
     }
 
