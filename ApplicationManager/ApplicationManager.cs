@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class ApplicationManager : MonoBehaviour {
 
     #region debug设置
@@ -17,6 +18,11 @@ public class ApplicationManager : MonoBehaviour {
         {
             return b_openDebug;
         }
+        set
+        {
+            b_openDebug = value;
+            Debug.unityLogger.logEnabled = b_openDebug;
+        }
     }
     #endregion
 
@@ -31,22 +37,50 @@ public class ApplicationManager : MonoBehaviour {
         {
             return b_useBundle;
         }
+        set
+        {
+            b_useBundle = value;
+        }
     }
 
     #endregion
 
 
+    private void Reset()
+    {
+        
+    }
+
+    private FPSTool fpsTool;
+    private void InitFPSTool()
+    {
+        if (fpsTool == null)
+        {
+            fpsTool = gameObject.AddComponent<FPSTool>();
+            fpsTool.SetState(B_openDebug);
+        }
+    }
+
+
+
+    //总游戏入口
     private void Start()
     {
         DontDestroyOnLoad(gameObject);
         Debug.unityLogger.logEnabled = B_openDebug;
 
-        //总游戏入口
+
+
+
+
+        //正式进入游戏逻辑
         UIManager.OpenUI<LoadingWindow>(LoadingWindow.c_assetPath);
         
     }
 
 
+
+    #region 测试代码
     private void Update()
     {
         //随时可以切换场景，用于测试
@@ -56,6 +90,8 @@ public class ApplicationManager : MonoBehaviour {
         }
 
     }
+    #endregion
+
 }
 
 

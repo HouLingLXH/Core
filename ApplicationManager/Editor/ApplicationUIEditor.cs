@@ -13,7 +13,7 @@ public class ApplicationUIEditor : Editor
 
         ApplicationManager myScript = (ApplicationManager)target;
 
-        GUILayout.Toggle(ApplicationManager.B_openDebug, "打印debug！");
-        GUILayout.Toggle(ApplicationManager.B_useBundle, "使用AssetBundle 加载！");
+        ApplicationManager.B_openDebug = GUILayout.Toggle(ApplicationManager.B_openDebug, "打印debug！");
+        ApplicationManager.B_useBundle =  GUILayout.Toggle(ApplicationManager.B_useBundle, "使用AssetBundle 加载！");
     }
 }
